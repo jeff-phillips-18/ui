@@ -10,14 +10,10 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/ex
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { Modal, ModalVariant } from '@patternfly/react-core/dist/esm/deprecated/components/Modal/Modal';
 import { UploadFile } from '@/components/Contribute/Knowledge/UploadFile';
-import { checkKnowledgeFormCompletion } from '@/components/Contribute/Knowledge/validation';
-import { KnowledgeFormData } from '@/types';
 
 interface Props {
   reset: boolean;
   isEditForm?: boolean;
-  knowledgeFormData: KnowledgeFormData;
-  setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
 
   knowledgeDocumentRepositoryUrl: string;
   setKnowledgeDocumentRepositoryUrl: React.Dispatch<React.SetStateAction<string>>;
@@ -39,8 +35,6 @@ interface AlertInfo {
 const DocumentInformation: React.FC<Props> = ({
   reset,
   isEditForm,
-  knowledgeFormData,
-  setDisableAction,
   knowledgeDocumentRepositoryUrl,
   setKnowledgeDocumentRepositoryUrl,
   knowledgeDocumentCommit,
@@ -77,10 +71,8 @@ const DocumentInformation: React.FC<Props> = ({
     const commit = commitStr.trim();
     if (commit.length > 0) {
       setValidCommit(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
       return;
     }
-    setDisableAction(true);
     setValidCommit(ValidatedOptions.error);
     return;
   };
@@ -89,10 +81,8 @@ const DocumentInformation: React.FC<Props> = ({
     const documentNameStr = document.trim();
     if (documentNameStr.length > 0) {
       setValidDocumentName(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
       return;
     }
-    setDisableAction(true);
     setValidDocumentName(ValidatedOptions.error);
     return;
   };

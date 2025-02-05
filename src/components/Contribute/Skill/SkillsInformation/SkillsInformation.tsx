@@ -1,30 +1,17 @@
 import React, { useEffect } from 'react';
-import { checkSkillFormCompletion } from '../validation';
-import { SkillFormData } from '@/types';
 import { ValidatedOptions, FormGroup, TextInput, HelperText, HelperTextItem, TextArea } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 interface Props {
   reset: boolean;
   isEditForm?: boolean;
-  skillFormData: SkillFormData;
-  setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   submissionSummary: string;
   setSubmissionSummary: React.Dispatch<React.SetStateAction<string>>;
   documentOutline: string;
   setDocumentOutline: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const SkillsInformation: React.FC<Props> = ({
-  reset,
-  isEditForm,
-  skillFormData,
-  setDisableAction,
-  submissionSummary,
-  setSubmissionSummary,
-  documentOutline,
-  setDocumentOutline
-}) => {
+const SkillsInformation: React.FC<Props> = ({ reset, isEditForm, submissionSummary, setSubmissionSummary, documentOutline, setDocumentOutline }) => {
   const [validDescription, setValidDescription] = React.useState<ValidatedOptions>();
   const [validOutline, setValidOutline] = React.useState<ValidatedOptions>();
 
@@ -43,10 +30,8 @@ const SkillsInformation: React.FC<Props> = ({
   const validateDescription = (description: string) => {
     if (description.length > 0 && description.length < 60) {
       setValidDescription(ValidatedOptions.success);
-      setDisableAction(!checkSkillFormCompletion(skillFormData));
       return;
     }
-    setDisableAction(true);
     setValidDescription(ValidatedOptions.error);
     return;
   };
@@ -54,10 +39,8 @@ const SkillsInformation: React.FC<Props> = ({
   const validateOutline = (outline: string) => {
     if (outline.length > 40) {
       setValidOutline(ValidatedOptions.success);
-      setDisableAction(!checkSkillFormCompletion(skillFormData));
       return;
     }
-    setDisableAction(true);
     setValidOutline(ValidatedOptions.error);
     return;
   };

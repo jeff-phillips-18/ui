@@ -149,7 +149,7 @@ const EditKnowledgeNative: React.FC<EditKnowledgeClientComponentProps> = ({ bran
       }
     };
     fetchBranchChanges();
-  }, [branchName]);
+  }, [branchName, session?.user?.email, session?.user?.name]);
 
   const parseAttributionContent = (content: string): AttributionData => {
     const lines = content.split('\n');

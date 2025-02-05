@@ -92,6 +92,8 @@ const DashboardNative: React.FunctionComponent = () => {
         fetchBranches();
       }
     });
+    // Only run at creation
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addAlert = (title: string, variant: AlertProps['variant']) => {

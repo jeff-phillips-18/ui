@@ -5,7 +5,6 @@ import '../knowledge.css';
 import { getGitHubUserInfo } from '@/utils/github';
 import { useSession } from 'next-auth/react';
 import AuthorInformation from '@/components/Contribute/AuthorInformation';
-import { FormType } from '@/components/Contribute/AuthorInformation';
 import KnowledgeInformation from '@/components/Contribute/Knowledge/KnowledgeInformation/KnowledgeInformation';
 import FilePathInformation from '@/components/Contribute/Knowledge/FilePathInformation/FilePathInformation';
 import DocumentInformation from '@/components/Contribute/Knowledge/Github/DocumentInformation/DocumentInformation';
@@ -532,7 +531,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
     });
   };
 
-  const knowledgeFormData: KnowledgeFormData = {
+  const knowledgeFormData: KnowledgeFormData = React.useMemo(() => ({
     email,
     name,
     submissionSummary,
@@ -548,7 +547,23 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
     revision,
     licenseWork,
     creators
-  };
+  }), [
+    creators,
+    documentName,
+    documentOutline,
+    domain,
+    email,
+    filePath,
+    knowledgeDocumentCommit,
+    knowledgeDocumentRepositoryUrl,
+    licenseWork,
+    linkWork,
+    name,
+    revision,
+    seedExamples,
+    submissionSummary,
+    titleWork
+  ]);
 
   devLog('Constructed knowledgeFormData:', knowledgeFormData);
 
@@ -570,10 +585,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
       name: 'Author Information',
       component: (
         <AuthorInformation
-          formType={FormType.Knowledge}
           reset={reset}
-          formData={knowledgeFormData}
-          setDisableAction={setDisableAction}
           email={email}
           setEmail={setEmail}
           name={name}
@@ -588,8 +600,6 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
         <KnowledgeInformation
           reset={reset}
           isEditForm={knowledgeEditFormData?.isEditForm}
-          knowledgeFormData={knowledgeFormData}
-          setDisableAction={setDisableAction}
           submissionSummary={submissionSummary}
           setSubmissionSummary={setSubmissionSummary}
           domain={domain}
@@ -617,8 +627,6 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
         <DocumentInformation
           reset={reset}
           isEditForm={knowledgeEditFormData?.isEditForm}
-          knowledgeFormData={knowledgeFormData}
-          setDisableAction={setDisableAction}
           knowledgeDocumentRepositoryUrl={knowledgeDocumentRepositoryUrl}
           setKnowledgeDocumentRepositoryUrl={setKnowledgeDocumentRepositoryUrl}
           knowledgeDocumentCommit={knowledgeDocumentCommit}
@@ -670,8 +678,6 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
         <AttributionInformation
           reset={reset}
           isEditForm={knowledgeEditFormData?.isEditForm}
-          knowledgeFormData={knowledgeFormData}
-          setDisableAction={setDisableAction}
           titleWork={titleWork}
           setTitleWork={setTitleWork}
           linkWork={linkWork}

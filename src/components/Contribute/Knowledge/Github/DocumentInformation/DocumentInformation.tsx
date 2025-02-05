@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { UploadFile } from '../../UploadFile';
-import { checkKnowledgeFormCompletion } from '../../validation';
-import { KnowledgeFormData } from '@/types';
 import {
   ValidatedOptions,
   FormFieldGroupHeader,
@@ -26,8 +24,6 @@ import { ExclamationCircleIcon } from '@patternfly/react-icons';
 interface Props {
   reset: boolean;
   isEditForm?: boolean;
-  knowledgeFormData: KnowledgeFormData;
-  setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   knowledgeDocumentRepositoryUrl: string;
   setKnowledgeDocumentRepositoryUrl: React.Dispatch<React.SetStateAction<string>>;
   knowledgeDocumentCommit: string;
@@ -39,8 +35,6 @@ interface Props {
 const DocumentInformation: React.FC<Props> = ({
   reset,
   isEditForm,
-  knowledgeFormData,
-  setDisableAction,
   knowledgeDocumentRepositoryUrl,
   setKnowledgeDocumentRepositoryUrl,
   knowledgeDocumentCommit,
@@ -81,17 +75,14 @@ const DocumentInformation: React.FC<Props> = ({
   const validateRepo = (repoStr: string) => {
     const repo = repoStr.trim();
     if (repo.length === 0) {
-      setDisableAction(true);
       setValidRepo(ValidatedOptions.error);
       return;
     }
     try {
       new URL(repo);
       setValidRepo(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
       return;
     } catch (e) {
-      setDisableAction(true);
       setValidRepo(ValidatedOptions.warning);
       return;
     }
@@ -101,10 +92,8 @@ const DocumentInformation: React.FC<Props> = ({
     const commit = commitStr.trim();
     if (commit.length > 0) {
       setValidCommit(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
       return;
     }
-    setDisableAction(true);
     setValidCommit(ValidatedOptions.error);
     return;
   };
@@ -113,10 +102,8 @@ const DocumentInformation: React.FC<Props> = ({
     const documentName = document.trim();
     if (documentName.length > 0) {
       setValidDocumentName(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
       return;
     }
-    setDisableAction(true);
     setValidDocumentName(ValidatedOptions.error);
     return;
   };

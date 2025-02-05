@@ -124,7 +124,7 @@ const EditSkillNative: React.FC<EditSkillClientComponentProps> = ({ branchName }
       }
     };
     fetchBranchChanges();
-  }, [branchName]);
+  }, [branchName, session?.user?.email, session?.user?.name]);
 
   const parseAttributionContent = (content: string): AttributionData => {
     const lines = content.split('\n');

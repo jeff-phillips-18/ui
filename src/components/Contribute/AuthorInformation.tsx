@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { checkSkillFormCompletion } from './Skill/validation';
-import { checkKnowledgeFormCompletion } from './Knowledge/validation';
 import { ValidatedOptions, FormGroup, TextInput, FormHelperText, HelperText, HelperTextItem } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
@@ -10,16 +8,13 @@ export enum FormType {
 }
 
 interface Props {
-  formType: FormType;
   reset: boolean;
-  formData: object;
-  setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   email: string;
   setEmail: React.Dispatch<React.SetStateAction<string>>;
   name: string;
   setName: React.Dispatch<React.SetStateAction<string>>;
 }
-const AuthorInformation: React.FC<Props> = ({ formType, reset, formData, setDisableAction, email, setEmail, name, setName }) => {
+const AuthorInformation: React.FC<Props> = ({ reset, email, setEmail, name, setName }) => {
   const [validEmail, setValidEmail] = useState<ValidatedOptions>();
   const [validName, setValidName] = useState<ValidatedOptions>();
   const [validEmailError, setValidEmailError] = useState('Required Field');
@@ -30,15 +25,9 @@ const AuthorInformation: React.FC<Props> = ({ formType, reset, formData, setDisa
     if (re.test(email)) {
       setValidEmail(ValidatedOptions.success);
       setValidEmailError('');
-      if (formType === FormType.Knowledge) {
-        setDisableAction(!checkKnowledgeFormCompletion(formData));
-        return;
-      }
-      setDisableAction(!checkSkillFormCompletion(formData));
       return;
     }
     const errMsg = email ? 'Please enter a valid email address.' : 'Required field';
-    setDisableAction(true);
     setValidEmail(ValidatedOptions.error);
     setValidEmailError(errMsg);
     return;
@@ -48,14 +37,8 @@ const AuthorInformation: React.FC<Props> = ({ formType, reset, formData, setDisa
     const name = nameStr.trim();
     if (name.length > 0) {
       setValidName(ValidatedOptions.success);
-      if (formType === FormType.Knowledge) {
-        setDisableAction(!checkKnowledgeFormCompletion(formData));
-        return;
-      }
-      setDisableAction(!checkSkillFormCompletion(formData));
       return;
     }
-    setDisableAction(true);
     setValidName(ValidatedOptions.error);
     return;
   };

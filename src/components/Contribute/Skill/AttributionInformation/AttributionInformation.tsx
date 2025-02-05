@@ -1,14 +1,10 @@
 import React, { useEffect } from 'react';
-import { checkSkillFormCompletion } from '../validation';
-import { SkillFormData } from '@/types';
 import { ValidatedOptions, FormGroup, TextInput, FormHelperText, HelperText, HelperTextItem } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 interface Props {
   reset: boolean;
   isEditForm?: boolean;
-  skillFormData: SkillFormData;
-  setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   titleWork: string;
   setTitleWork: React.Dispatch<React.SetStateAction<string>>;
   licenseWork: string;
@@ -20,8 +16,6 @@ interface Props {
 const AttributionInformation: React.FC<Props> = ({
   reset,
   isEditForm,
-  skillFormData,
-  setDisableAction,
   titleWork,
   setTitleWork,
   licenseWork,
@@ -51,10 +45,8 @@ const AttributionInformation: React.FC<Props> = ({
     const title = titleStr.trim();
     if (title.length > 0) {
       setValidTitle(ValidatedOptions.success);
-      setDisableAction(!checkSkillFormCompletion(skillFormData));
       return;
     }
-    setDisableAction(true);
     setValidTitle(ValidatedOptions.error);
     return;
   };
@@ -63,10 +55,8 @@ const AttributionInformation: React.FC<Props> = ({
     const license = licenseStr.trim();
     if (license.length > 0) {
       setValidLicense(ValidatedOptions.success);
-      setDisableAction(!checkSkillFormCompletion(skillFormData));
       return;
     }
-    setDisableAction(true);
     setValidLicense(ValidatedOptions.error);
     return;
   };
@@ -75,10 +65,8 @@ const AttributionInformation: React.FC<Props> = ({
     const creators = creatorsStr.trim();
     if (creators.length > 0) {
       setValidCreators(ValidatedOptions.success);
-      setDisableAction(!checkSkillFormCompletion(skillFormData));
       return;
     }
-    setDisableAction(true);
     setValidCreators(ValidatedOptions.error);
     return;
   };

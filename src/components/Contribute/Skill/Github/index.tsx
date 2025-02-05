@@ -38,7 +38,7 @@ import {
   Wizard,
   WizardStep
 } from '@patternfly/react-core';
-import AuthorInformation, { FormType } from '../../AuthorInformation';
+import AuthorInformation from '../../AuthorInformation';
 import ReviewSubmission from '../ReviewSubmission';
 
 export interface SkillEditFormData {
@@ -330,17 +330,20 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
     setSeedExamples(yamlSeedExampleToFormSeedExample(data.seed_examples));
   };
 
-  const skillFormData: SkillFormData = {
-    email: email,
-    name: name,
-    submissionSummary: submissionSummary,
-    documentOutline: documentOutline,
-    filePath: filePath,
-    seedExamples: seedExamples,
-    titleWork: titleWork,
-    licenseWork: licenseWork,
-    creators: creators
-  };
+  const skillFormData: SkillFormData = React.useMemo(
+    () => ({
+      email: email,
+      name: name,
+      submissionSummary: submissionSummary,
+      documentOutline: documentOutline,
+      filePath: filePath,
+      seedExamples: seedExamples,
+      titleWork: titleWork,
+      licenseWork: licenseWork,
+      creators: creators
+    }),
+    [creators, documentOutline, email, filePath, licenseWork, name, seedExamples, submissionSummary, titleWork]
+  );
 
   useEffect(() => {
     setDisableAction(!checkSkillFormCompletion(skillFormData));
@@ -355,21 +358,10 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
       name: 'Details',
       component: (
         <>
-          <AuthorInformation
-            formType={FormType.Knowledge}
-            reset={reset}
-            formData={skillFormData}
-            setDisableAction={setDisableAction}
-            email={email}
-            setEmail={setEmail}
-            name={name}
-            setName={setName}
-          />
+          <AuthorInformation reset={reset} email={email} setEmail={setEmail} name={name} setName={setName} />
           <SkillsInformation
             reset={reset}
             isEditForm={skillEditFormData?.isEditForm}
-            skillFormData={skillFormData}
-            setDisableAction={setDisableAction}
             submissionSummary={submissionSummary}
             setSubmissionSummary={setSubmissionSummary}
             documentOutline={documentOutline}
@@ -410,8 +402,6 @@ export const SkillFormGithub: React.FunctionComponent<SkillFormProps> = ({ skill
         <AttributionInformation
           reset={reset}
           isEditForm={skillEditFormData?.isEditForm}
-          skillFormData={skillFormData}
-          setDisableAction={setDisableAction}
           titleWork={titleWork}
           setTitleWork={setTitleWork}
           licenseWork={licenseWork}

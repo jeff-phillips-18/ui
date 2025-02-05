@@ -23,6 +23,8 @@ const GithubAccessPopup: React.FunctionComponent<Props> = ({ onAccept }) => {
       }
     };
     showPopupWarning();
+    // Only check at creation time
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const setDecisionAndClose = () => {

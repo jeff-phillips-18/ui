@@ -27,40 +27,43 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
   const inputRef = useRef<HTMLInputElement>(null);
   const [validPath, setValidPath] = React.useState<ValidatedOptions>();
 
-  const validatePath = () => {
+  const validatePath = React.useCallback(() => {
     if (inputValue.trim().length > 0) {
       setValidPath(ValidatedOptions.success);
       return;
     }
     setValidPath(ValidatedOptions.error);
-  };
+  }, [inputValue]);
 
-  const fetchData = async (subpath: string) => {
-    try {
-      const response = await fetch('/api/tree', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ root_path: rootPath, dir_name: subpath })
-      });
+  const fetchData = React.useCallback(
+    async (subpath: string) => {
+      try {
+        const response = await fetch('/api/tree', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ root_path: rootPath, dir_name: subpath })
+        });
 
-      if (!response.ok) {
-        console.warn('Failed to get path service tree for subpath ( ' + subpath + ' ) from server.');
-      }
+        if (!response.ok) {
+          console.warn('Failed to get path service tree for subpath ( ' + subpath + ' ) from server.');
+        }
 
-      const result = await response.json();
-      // set items to be displayed in the dropdown
-      if (result.data === null || result.data.length === 0) {
+        const result = await response.json();
+        // set items to be displayed in the dropdown
+        if (result.data === null || result.data.length === 0) {
+          setItems([]);
+          return;
+        }
+        setItems(result.data.map((item: string) => item.valueOf()));
+      } catch (error) {
+        console.warn('Error fetching path service data:', error);
         setItems([]);
-        return;
       }
-      setItems(result.data.map((item: string) => item.valueOf()));
-    } catch (error) {
-      console.warn('Error fetching path service data:', error);
-      setItems([]);
-    }
-  };
+    },
+    [rootPath]
+  );
 
   useEffect(() => {
     setInputValue('');
@@ -83,7 +86,7 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
     return () => {
       window.removeEventListener('keydown', handleEsc);
     };
-  }, []);
+  }, [path]);
 
   useEffect(() => {
     // check if input value is empty or ends with a slash
@@ -94,8 +97,7 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
     } else {
       setItems([]);
     }
-    validatePath();
-  }, [inputValue]);
+  }, [fetchData, handlePathChange, inputValue]);
 
   const handleChange = (value: string) => {
     setInputValue(value);

@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react';
 import '../skills.css';
 import { useSession } from 'next-auth/react';
 import AuthorInformation from '@/components/Contribute/AuthorInformation';
-import { FormType } from '@/components/Contribute/AuthorInformation';
 import FilePathInformation from '@/components/Contribute/Skill/FilePathInformation/FilePathInformation';
 import Submit from '@/components/Contribute/Skill/Native/Submit/Submit';
 import { checkSkillFormCompletion } from '@/components/Contribute/Skill/validation';
@@ -296,7 +295,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
     setSeedExamples(yamlSeedExampleToFormSeedExample(data.seed_examples));
   };
 
-  const skillFormData: SkillFormData = {
+  const skillFormData: SkillFormData = React.useMemo(() => ({
     email: email,
     name: name,
     submissionSummary: submissionSummary,
@@ -306,7 +305,14 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
     titleWork: '',
     licenseWork: '',
     creators: ''
-  };
+  }), [
+    documentOutline,
+    email,
+    filePath,
+    name,
+    seedExamples,
+    submissionSummary
+  ]);
 
   useEffect(() => {
     setDisableAction(!checkSkillFormCompletion(skillFormData, true));
@@ -323,10 +329,7 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
       component: (
         <>
           <AuthorInformation
-            formType={FormType.Knowledge}
             reset={reset}
-            formData={skillFormData}
-            setDisableAction={setDisableAction}
             email={email}
             setEmail={setEmail}
             name={name}
@@ -335,8 +338,6 @@ export const SkillFormNative: React.FunctionComponent<SkillFormProps> = ({ skill
           <SkillsInformation
             reset={reset}
             isEditForm={skillEditFormData?.isEditForm}
-            skillFormData={skillFormData}
-            setDisableAction={setDisableAction}
             submissionSummary={submissionSummary}
             setSubmissionSummary={setSubmissionSummary}
             documentOutline={documentOutline}

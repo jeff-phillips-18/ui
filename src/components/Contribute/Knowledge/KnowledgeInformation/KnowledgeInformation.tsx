@@ -1,14 +1,10 @@
 import React, { useEffect } from 'react';
-import { checkKnowledgeFormCompletion } from '../validation';
-import { KnowledgeFormData } from '@/types';
 import { ValidatedOptions, FormGroup, TextInput, HelperText, HelperTextItem, TextArea } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 interface Props {
   reset: boolean;
   isEditForm?: boolean;
-  knowledgeFormData: KnowledgeFormData;
-  setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   submissionSummary: string;
   setSubmissionSummary: React.Dispatch<React.SetStateAction<string>>;
   domain: string;
@@ -20,8 +16,6 @@ interface Props {
 const KnowledgeInformation: React.FC<Props> = ({
   reset,
   isEditForm,
-  knowledgeFormData,
-  setDisableAction,
   submissionSummary,
   setSubmissionSummary,
   domain,
@@ -51,10 +45,8 @@ const KnowledgeInformation: React.FC<Props> = ({
     const description = desc.trim();
     if (description.length > 0 && description.length <= 60) {
       setValidDescription(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
       return;
     }
-    setDisableAction(true);
     setValidDescription(ValidatedOptions.error);
     return;
   };
@@ -63,10 +55,8 @@ const KnowledgeInformation: React.FC<Props> = ({
     const domain = dom.trim();
     if (domain.length > 0) {
       setValidDomain(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
       return;
     }
-    setDisableAction(true);
     setValidDomain(ValidatedOptions.error);
     return;
   };
@@ -75,10 +65,8 @@ const KnowledgeInformation: React.FC<Props> = ({
     const outline = ol.trim();
     if (outline.length >= 40) {
       setValidOutline(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
       return;
     }
-    setDisableAction(true);
     setValidOutline(ValidatedOptions.error);
     return;
   };

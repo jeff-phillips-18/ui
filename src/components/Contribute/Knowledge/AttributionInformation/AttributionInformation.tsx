@@ -1,14 +1,10 @@
 import React, { useEffect } from 'react';
-import { checkKnowledgeFormCompletion } from '../validation';
-import { KnowledgeFormData } from '@/types';
 import { ValidatedOptions, FormFieldGroupHeader, FormGroup, TextInput, FormHelperText, HelperText, HelperTextItem } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 
 interface Props {
   reset: boolean;
   isEditForm?: boolean;
-  knowledgeFormData: KnowledgeFormData;
-  setDisableAction: React.Dispatch<React.SetStateAction<boolean>>;
   titleWork: string;
   setTitleWork: React.Dispatch<React.SetStateAction<string>>;
   linkWork: string;
@@ -24,8 +20,6 @@ interface Props {
 const AttributionInformation: React.FC<Props> = ({
   reset,
   isEditForm,
-  knowledgeFormData,
-  setDisableAction,
   titleWork,
   setTitleWork,
   linkWork,
@@ -66,10 +60,8 @@ const AttributionInformation: React.FC<Props> = ({
     const title = titleStr.trim();
     if (title.length > 0) {
       setValidTitle(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
       return;
     }
-    setDisableAction(true);
     setValidTitle(ValidatedOptions.error);
     return;
   };
@@ -77,17 +69,14 @@ const AttributionInformation: React.FC<Props> = ({
   const validateLink = (linkStr: string) => {
     const link = linkStr.trim();
     if (link.length === 0) {
-      setDisableAction(true);
       setValidLink(ValidatedOptions.error);
       return;
     }
     try {
       new URL(link);
       setValidLink(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
       return;
     } catch (e) {
-      setDisableAction(true);
       setValidLink(ValidatedOptions.warning);
       return;
     }
@@ -97,10 +86,8 @@ const AttributionInformation: React.FC<Props> = ({
     const revision = revisionStr.trim();
     if (revision.length > 0) {
       setValidRevision(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
       return;
     }
-    setDisableAction(true);
     setValidRevision(ValidatedOptions.error);
     return;
   };
@@ -109,10 +96,8 @@ const AttributionInformation: React.FC<Props> = ({
     const license = licenseStr.trim();
     if (license.length > 0) {
       setValidLicense(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
       return;
     }
-    setDisableAction(true);
     setValidLicense(ValidatedOptions.error);
     return;
   };
@@ -121,10 +106,8 @@ const AttributionInformation: React.FC<Props> = ({
     const creators = creatorsStr.trim();
     if (creators.length > 0) {
       setValidCreators(ValidatedOptions.success);
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
       return;
     }
-    setDisableAction(true);
     setValidCreators(ValidatedOptions.error);
     return;
   };
