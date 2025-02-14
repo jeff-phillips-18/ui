@@ -1,6 +1,6 @@
 // src/components/Contribute/Knowledge/Native/KnowledgeSeedExampleNative/KnowledgeQuestionAnswerPairsNative.tsx
 import React from 'react';
-import KnowledgeQuestionAnswerPairs from '../KnowledgeQuestionAnswerPairs/KnowledgeQuestionAnswerPairs';
+import KnowledgeQuestionAnswerPairsNative from '../KnowledgeQuestionAnswerPairsNative/KnowledgeQuestionAnswerPairs';
 import type { KnowledgeSeedExample } from '@/types';
 import { Accordion, AccordionContent, AccordionItem, AccordionToggle, Button, FormFieldGroupHeader } from '@patternfly/react-core';
 import { ExternalLinkAltIcon, PlusCircleIcon, TrashIcon } from '@patternfly/react-icons';
@@ -21,7 +21,7 @@ interface Props {
   commitSha: string;
 }
 
-const KnowledgeSeedExample: React.FC<Props> = ({
+const KnowledgeSeedExampleNative: React.FC<Props> = ({
   seedExamples,
   handleContextInputChange,
   handleContextBlur,
@@ -71,7 +71,7 @@ const KnowledgeSeedExample: React.FC<Props> = ({
               </span>
             </AccordionToggle>
             <AccordionContent id={`seed-example-content-${seedExampleIndex}`}>
-              <KnowledgeQuestionAnswerPairs
+              <KnowledgeQuestionAnswerPairsNative
                 seedExample={seedExample}
                 seedExampleIndex={seedExampleIndex}
                 handleContextInputChange={handleContextInputChange}
@@ -97,4 +97,4 @@ const KnowledgeSeedExample: React.FC<Props> = ({
   );
 };
 
-export default KnowledgeSeedExample;
+export default KnowledgeSeedExampleNative;

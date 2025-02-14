@@ -1,4 +1,3 @@
-// src/components/Contribute/Knowledge/KnowledgeQuestionAnswerPairs/KnowledgeQuestionAnswerPairs.tsx
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { KnowledgeSeedExample, QuestionAndAnswerPair } from '@/types';
 import {
@@ -47,7 +46,7 @@ interface Props {
   commitSha: string;
 }
 
-const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
+const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
   seedExample,
   seedExampleIndex,
   handleContextInputChange,
@@ -80,7 +79,7 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
     setIsLoading(true);
     setError('');
     try {
-      const response = await fetch('/api/github/knowledge-files', {
+      const response = await fetch('/api/native/git/knowledge-files', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -489,4 +488,4 @@ const KnowledgeQuestionAnswerPairs: React.FC<Props> = ({
   );
 };
 
-export default KnowledgeQuestionAnswerPairs;
+export default KnowledgeQuestionAnswerPairsNative;
