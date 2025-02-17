@@ -1,26 +1,24 @@
-// src/components/Contribute/Knowledge/Github/index.tsx
+// src/components/Contribute/Native/Knowledge/index.tsx
 'use client';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../knowledge.css';
-import { getGitHubUserInfo } from '@/utils/github';
 import { useSession } from 'next-auth/react';
 import AuthorInformation from '@/components/Contribute/AuthorInformation';
 import { FormType } from '@/components/Contribute/AuthorInformation';
 import KnowledgeInformation from '@/components/Contribute/Knowledge/KnowledgeInformation/KnowledgeInformation';
 import FilePathInformation from '@/components/Contribute/Knowledge/FilePathInformation/FilePathInformation';
-import DocumentInformation from '@/components/Contribute/Knowledge/Github/DocumentInformation/DocumentInformation';
-import AttributionInformation from '@/components/Contribute/Knowledge/AttributionInformation/AttributionInformation';
+import DocumentInformation from '@/components/Contribute/Knowledge/Native/DocumentInformation/DocumentInformation';
 import Submit from './Submit/Submit';
 import KnowledgeDescriptionContent from '@/components/Contribute/Knowledge/KnowledgeDescription/KnowledgeDescriptionContent';
-import KnowledgeSeedExample from '@/components/Contribute/Knowledge/Github/KnowledgeSeedExample/KnowledgeSeedExample';
+import KnowledgeSeedExampleNative from '@/components/Contribute/Knowledge/Native/KnowledgeSeedExampleNative/KnowledgeSeedExampleNative';
 import { checkKnowledgeFormCompletion } from '@/components/Contribute/Knowledge/validation';
 import { DownloadDropdown } from '@/components/Contribute/Knowledge/DownloadDropdown/DownloadDropdown';
 import { ViewDropdown } from '@/components/Contribute/Knowledge/ViewDropdown/ViewDropdown';
-import Update from '@/components/Contribute/Knowledge/Github/Update/Update';
-import { KnowledgeEditFormData, KnowledgeFormData, KnowledgeYamlData, QuestionAndAnswerPair } from '@/types';
+import Update from '@/components/Contribute/Knowledge/Native/Update/Update';
+import { KnowledgeEditFormData, KnowledgeFormData, KnowledgeSeedExample, KnowledgeYamlData, QuestionAndAnswerPair } from '@/types';
 import { useRouter } from 'next/navigation';
 import { autoFillKnowledgeFields } from '@/components/Contribute/Knowledge/AutoFill';
-import ReviewSubmission from '@/components/Contribute/Knowledge/ReviewSubmission';
+import ReviewSubmission from '../ReviewSubmission';
 import { YamlFileUploadModal } from '../../YamlFileUploadModal';
 import {
   ValidatedOptions,
@@ -57,11 +55,10 @@ export interface KnowledgeFormProps {
   knowledgeEditFormData?: KnowledgeEditFormData;
 }
 
-export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = ({ knowledgeEditFormData }) => {
+export const KnowledgeFormNative: React.FunctionComponent<KnowledgeFormProps> = ({ knowledgeEditFormData }) => {
   const [devModeEnabled, setDevModeEnabled] = useState<boolean | undefined>();
 
   const { data: session } = useSession();
-  const [githubUsername, setGithubUsername] = useState<string>('');
   // Author Information
   const [email, setEmail] = useState<string>('');
   const [name, setName] = useState<string>('');
@@ -153,29 +150,12 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
     getEnvVariables();
   }, []);
 
-  useMemo(() => {
-    const fetchUserInfo = async () => {
-      if (session?.accessToken) {
-        try {
-          const headers = {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${session.accessToken}`,
-            Accept: 'application/vnd.github+json',
-            'X-GitHub-Api-Version': '2022-11-28'
-          };
-
-          const fetchedUserInfo = await getGitHubUserInfo(headers);
-          setGithubUsername(fetchedUserInfo.login);
-          setName(fetchedUserInfo.name);
-          setEmail(fetchedUserInfo.email);
-        } catch (error) {
-          console.error('Failed to fetch GitHub user info:', error);
-        }
-      }
-    };
-
-    fetchUserInfo();
-  }, [session?.accessToken]);
+  useEffect(() => {
+    if (session?.user?.name && session?.user?.email) {
+      setName(session?.user?.name);
+      setEmail(session?.user?.email);
+    }
+  }, [session?.user]);
 
   useEffect(() => {
     // Set all elements from the knowledgeFormData to the state
@@ -225,7 +205,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
     }
     const tokens = contextStr.split(/\s+/);
     if (tokens.length > 0 && tokens.length <= 500) {
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, true));
       return { msg: 'Valid Input', status: ValidatedOptions.success };
     }
     setDisableAction(true);
@@ -241,7 +221,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
     }
     const tokens = questionStr.split(/\s+/);
     if (tokens.length > 0 && tokens.length < 250) {
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, true));
       return { msg: 'Valid input', status: ValidatedOptions.success };
     }
     setDisableAction(true);
@@ -256,7 +236,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
     }
     const tokens = answerStr.split(/\s+/);
     if (tokens.length > 0 && tokens.length < 250) {
-      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+      setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, true));
       return { msg: 'Valid input', status: ValidatedOptions.success };
     }
     setDisableAction(true);
@@ -268,9 +248,9 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
       prevSeedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
         index === seedExampleIndex
           ? {
-              ...seedExample,
-              context: contextValue
-            }
+            ...seedExample,
+            context: contextValue
+          }
           : seedExample
       )
     );
@@ -298,16 +278,16 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
       prevSeedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
         index === seedExampleIndex
           ? {
-              ...seedExample,
-              questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, qaIndex: number) =>
-                qaIndex === questionAndAnswerIndex
-                  ? {
-                      ...questionAndAnswerPair,
-                      question: questionValue
-                    }
-                  : questionAndAnswerPair
-              )
-            }
+            ...seedExample,
+            questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, qaIndex: number) =>
+              qaIndex === questionAndAnswerIndex
+                ? {
+                  ...questionAndAnswerPair,
+                  question: questionValue
+                }
+                : questionAndAnswerPair
+            )
+          }
           : seedExample
       )
     );
@@ -319,20 +299,20 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
       prevSeedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
         index === seedExampleIndex
           ? {
-              ...seedExample,
-              questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, qaIndex: number) => {
-                if (qaIndex === questionAndAnswerIndex) {
-                  const { msg, status } = validateQuestion(questionAndAnswerPair.question);
-                  devLog(`Question Validation for Seed Example ${seedExampleIndex + 1}, Q&A Pair ${questionAndAnswerIndex + 1}: ${msg} (${status})`);
-                  return {
-                    ...questionAndAnswerPair,
-                    isQuestionValid: status,
-                    questionValidationError: msg
-                  };
-                }
-                return questionAndAnswerPair;
-              })
-            }
+            ...seedExample,
+            questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, qaIndex: number) => {
+              if (qaIndex === questionAndAnswerIndex) {
+                const { msg, status } = validateQuestion(questionAndAnswerPair.question);
+                devLog(`Question Validation for Seed Example ${seedExampleIndex + 1}, Q&A Pair ${questionAndAnswerIndex + 1}: ${msg} (${status})`);
+                return {
+                  ...questionAndAnswerPair,
+                  isQuestionValid: status,
+                  questionValidationError: msg
+                };
+              }
+              return questionAndAnswerPair;
+            })
+          }
           : seedExample
       )
     );
@@ -343,16 +323,16 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
       seedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
         index === seedExampleIndex
           ? {
-              ...seedExample,
-              questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, qaIndex: number) =>
-                qaIndex === questionAndAnswerIndex
-                  ? {
-                      ...questionAndAnswerPair,
-                      answer: answerValue
-                    }
-                  : questionAndAnswerPair
-              )
-            }
+            ...seedExample,
+            questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, qaIndex: number) =>
+              qaIndex === questionAndAnswerIndex
+                ? {
+                  ...questionAndAnswerPair,
+                  answer: answerValue
+                }
+                : questionAndAnswerPair
+            )
+          }
           : seedExample
       )
     );
@@ -363,19 +343,19 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
       prevSeedExamples.map((seedExample: KnowledgeSeedExample, index: number) =>
         index === seedExampleIndex
           ? {
-              ...seedExample,
-              questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, qaIndex: number) => {
-                if (qaIndex === questionAndAnswerIndex) {
-                  const { msg, status } = validateAnswer(questionAndAnswerPair.answer);
-                  return {
-                    ...questionAndAnswerPair,
-                    isAnswerValid: status,
-                    answerValidationError: msg
-                  };
-                }
-                return questionAndAnswerPair;
-              })
-            }
+            ...seedExample,
+            questionAndAnswers: seedExample.questionAndAnswers.map((questionAndAnswerPair: QuestionAndAnswerPair, qaIndex: number) => {
+              if (qaIndex === questionAndAnswerIndex) {
+                const { msg, status } = validateAnswer(questionAndAnswerPair.answer);
+                return {
+                  ...questionAndAnswerPair,
+                  isAnswerValid: status,
+                  answerValidationError: msg
+                };
+              }
+              return questionAndAnswerPair;
+            })
+          }
           : seedExample
       )
     );
@@ -443,7 +423,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
 
   const deleteSeedExample = (seedExampleIndex: number): void => {
     setSeedExamples(seedExamples.filter((_, index: number) => index !== seedExampleIndex));
-    setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+    setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, true));
   };
 
   const onCloseActionGroupAlert = () => {
@@ -518,6 +498,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
   };
 
   const onYamlUploadKnowledgeFillForm = (data: KnowledgeYamlData): void => {
+    setName(data.created_by ?? '');
     setDocumentOutline(data.document_outline ?? '');
     setSubmissionSummary(data.document_outline ?? '');
     setDomain(data.domain ?? '');
@@ -557,7 +538,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
   }, [seedExamples]);
 
   useEffect(() => {
-    setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData));
+    setDisableAction(!checkKnowledgeFormCompletion(knowledgeFormData, true));
   }, [knowledgeFormData]);
 
   const handleCancel = () => {
@@ -632,7 +613,7 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
       id: 'seed-examples',
       name: 'Seed Examples',
       component: (
-        <KnowledgeSeedExample
+        <KnowledgeSeedExampleNative
           seedExamples={seedExamples}
           handleContextInputChange={(idx, val) => {
             handleContextInputChange(idx, val);
@@ -664,31 +645,9 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
       )
     },
     {
-      id: 'attribution-info',
-      name: 'Attribution Information',
-      component: (
-        <AttributionInformation
-          reset={reset}
-          isEditForm={knowledgeEditFormData?.isEditForm}
-          knowledgeFormData={knowledgeFormData}
-          setDisableAction={setDisableAction}
-          titleWork={titleWork}
-          setTitleWork={setTitleWork}
-          linkWork={linkWork}
-          setLinkWork={setLinkWork}
-          revision={revision}
-          setRevision={setRevision}
-          licenseWork={licenseWork}
-          setLicenseWork={setLicenseWork}
-          creators={creators}
-          setCreators={setCreators}
-        />
-      )
-    },
-    {
       id: 'review-submission',
       name: 'Review Submission',
-      component: <ReviewSubmission knowledgeFormData={knowledgeFormData} isGithubMode={true} />,
+      component: <ReviewSubmission knowledgeFormData={knowledgeFormData} isGithubMode={false} />,
       footer: {
         isNextDisabled: true
       }
@@ -774,9 +733,9 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
             <Update
               disableAction={disableAction}
               knowledgeFormData={knowledgeFormData}
-              pullRequestNumber={knowledgeEditFormData.pullRequestNumber}
               oldFilesPath={knowledgeEditFormData.oldFilesPath}
               branchName={knowledgeEditFormData.branchName}
+              email={email}
               setActionGroupAlertContent={setActionGroupAlertContent}
             />
           )}
@@ -785,12 +744,12 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
               disableAction={disableAction}
               knowledgeFormData={knowledgeFormData}
               setActionGroupAlertContent={setActionGroupAlertContent}
-              githubUsername={githubUsername}
+              email={email}
               resetForm={resetForm}
             />
           )}
-          <DownloadDropdown knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} isGithubMode={true} />
-          <ViewDropdown knowledgeFormData={knowledgeFormData} githubUsername={githubUsername} isGithubMode={true} />
+          <DownloadDropdown knowledgeFormData={knowledgeFormData} githubUsername={email} isGithubMode={false} />
+          <ViewDropdown knowledgeFormData={knowledgeFormData} githubUsername={email} isGithubMode={false} />
           <Button variant="link" type="button" onClick={handleCancel}>
             Cancel
           </Button>
@@ -800,4 +759,4 @@ export const KnowledgeFormGithub: React.FunctionComponent<KnowledgeFormProps> = 
   );
 };
 
-export default KnowledgeFormGithub;
+export default KnowledgeFormNative;
