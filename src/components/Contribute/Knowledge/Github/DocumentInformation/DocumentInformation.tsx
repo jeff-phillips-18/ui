@@ -73,6 +73,22 @@ const DocumentInformation: React.FC<Props> = ({
     }
   }, [isEditForm]);
 
+  const validateRepo = (repoStr: string) => {
+    const repo = repoStr.trim();
+    if (repo.length === 0) {
+      setValidRepo(ValidatedOptions.error);
+      return;
+    }
+    try {
+      new URL(repo);
+      setValidRepo(ValidatedOptions.success);
+      return;
+    } catch (e) {
+      setValidRepo(ValidatedOptions.warning);
+      return;
+    }
+  };
+
   const validateCommit = (commitStr: string) => {
     const commit = commitStr.trim();
     if (commit.length > 0) {
@@ -128,9 +144,10 @@ const DocumentInformation: React.FC<Props> = ({
         )
       );
 
+      const fetchURL = '/api/github/knowledge-files';
       if (fileContents.length === uploadedFiles.length) {
         try {
-          const response = await fetch('/api/native/git/knowledge-files', {
+          const response = await fetch(fetchURL, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -138,7 +155,7 @@ const DocumentInformation: React.FC<Props> = ({
             body: JSON.stringify({ files: fileContents })
           });
 
-          if (response.status === 201) {
+          if (response.status === 201 || response.ok) {
             const result = await response.json();
             console.log('Files uploaded result:', result);
             setKnowledgeDocumentRepositoryUrl(result.repoUrl);
@@ -150,6 +167,9 @@ const DocumentInformation: React.FC<Props> = ({
               title: 'Document uploaded successfully!',
               message: 'Documents have been submitted to local taxonomy knowledge docs repo to be referenced in the knowledge submission.'
             };
+            if (result.prUrl !== '') {
+              alertInfo.link = result.prUrl;
+            }
             setAlertInfo(alertInfo);
           } else {
             console.error('Knowledge document upload failed:', response.statusText);
@@ -266,6 +286,7 @@ const DocumentInformation: React.FC<Props> = ({
               placeholder="Enter repo URL where document exists"
               value={knowledgeDocumentRepositoryUrl}
               onChange={(_event, value) => setKnowledgeDocumentRepositoryUrl(value)}
+              onBlur={() => validateRepo(knowledgeDocumentRepositoryUrl)}
             />
           </FormGroup>
           <FormGroup isRequired key={'doc-info-details-commit_sha'} label="Commit SHA">
