@@ -72,17 +72,15 @@ const SeedExamples: React.FC<Props> = ({ isGithubMode, seedExamples, onUpdateSee
           Add seed examples with context and minimum 3 question and answer pairs. A minimum of five seed examples are required.{' '}
           <Button
             variant="link"
+            component="a"
             isInline
             href="https://docs.instructlab.ai/taxonomy/knowledge/#knowledge-yaml-examples"
+            icon={<ExternalLinkAltIcon />}
+            iconPosition="end"
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Flex gap={{ default: 'gapXs' }}>
-              <FlexItem>Learn more about seed examples</FlexItem>
-              <FlexItem>
-                <ExternalLinkAltIcon />
-              </FlexItem>
-            </Flex>
+            Learn more about seed examples
           </Button>
         </Content>
       </FlexItem>

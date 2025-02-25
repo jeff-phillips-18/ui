@@ -17,16 +17,6 @@ import {
 import { CatalogIcon, ExclamationCircleIcon } from '@patternfly/react-icons';
 import KnowledgeFileSelectModal from '@/components/Contribute/Knowledge/SeedExamples/KnowledgeFileSelectModal';
 
-interface KnowledgeFile {
-  filename: string;
-  content: string;
-  commitSha: string;
-  commitDate?: string;
-}
-
-const GITHUB_KNOWLEDGE_FILES_API = '/api/github/knowledge-files';
-const NATIVE_GIT_KNOWLEDGE_FILES_API = '/api/native/git/knowledge-files';
-
 interface Props {
   isGithubMode: boolean;
   seedExample: KnowledgeSeedExample;
@@ -42,7 +32,7 @@ interface Props {
   commitSha: string;
 }
 
-const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
+const QuestionAnswerPairs: React.FC<Props> = ({
   isGithubMode,
   seedExample,
   seedExampleIndex,
@@ -57,56 +47,17 @@ const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
   commitSha
 }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [knowledgeFiles, setKnowledgeFiles] = useState<KnowledgeFile[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
   const [contextWordCount, setContextWordCount] = useState(0);
   const MAX_WORDS = 500;
 
-  const fetchKnowledgeFiles = async () => {
-    setIsLoading(true);
-    setError('');
-    try {
-      const response = await fetch(isGithubMode ? GITHUB_KNOWLEDGE_FILES_API : NATIVE_GIT_KNOWLEDGE_FILES_API, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      });
-
-      const result = await response.json();
-      if (response.ok) {
-        setKnowledgeFiles(result.files);
-        console.log('Fetched knowledge files:', result.files);
-      } else {
-        setError(result.error || 'Failed to fetch knowledge files.');
-        console.error('Error fetching knowledge files:', result.error);
-      }
-    } catch (err) {
-      setError('An error occurred while fetching knowledge files.');
-      console.error('Error fetching knowledge files:', err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleOpenModal = () => {
     setIsModalOpen(true);
-    fetchKnowledgeFiles();
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    setKnowledgeFiles([]);
-    setError('');
     window.getSelection()?.removeAllRanges();
   };
-
-  // Extract commit dates for sorting
-  const commitDateMap: Record<string, string> = {};
-  knowledgeFiles.forEach((file) => {
-    if (file.commitDate && !commitDateMap[file.commitSha]) {
-      commitDateMap[file.commitSha] = file.commitDate;
-    }
-  });
 
   // TODO: replace with a tokenizer library
   const countWords = (text: string) => {
@@ -220,9 +171,7 @@ const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
 
       {isModalOpen ? (
         <KnowledgeFileSelectModal
-          knowledgeFiles={knowledgeFiles}
-          isLoading={isLoading}
-          error={error}
+          isGithubMode={isGithubMode}
           seedExample={seedExample}
           seedExampleIndex={seedExampleIndex}
           handleContextInputChange={handleContextInputChange}
@@ -241,4 +190,4 @@ const KnowledgeQuestionAnswerPairsNative: React.FC<Props> = ({
   );
 };
 
-export default KnowledgeQuestionAnswerPairsNative;
+export default QuestionAnswerPairs;

@@ -3,6 +3,8 @@ import { KnowledgeFormData } from '@/types';
 
 export const isAuthInfoValid = (knowledgeFormData: KnowledgeFormData): boolean => !!knowledgeFormData.email && !!knowledgeFormData.name;
 
+export const isSubmissionSummaryValid = (knowledgeFormData: KnowledgeFormData): boolean => knowledgeFormData.submissionSummary.trim().length > 0;
+
 export const isKnowledgeInfoValid = (knowledgeFormData: KnowledgeFormData): boolean => {
   const description = knowledgeFormData.submissionSummary.trim();
   if (!description.length) {
@@ -23,6 +25,9 @@ export const isKnowledgeInfoValid = (knowledgeFormData: KnowledgeFormData): bool
 };
 
 export const isFilePathInfoValid = (knowledgeFormData: KnowledgeFormData): boolean => knowledgeFormData.filePath.trim().length > 0;
+
+export const isKnowledgeDetailsValid = (knowledgeFormData: KnowledgeFormData): boolean =>
+  isAuthInfoValid(knowledgeFormData) && isSubmissionSummaryValid(knowledgeFormData) && isFilePathInfoValid(knowledgeFormData);
 
 export const isDocumentInfoValid = (knowledgeFormData: KnowledgeFormData): boolean => {
   const commit = knowledgeFormData.knowledgeDocumentCommit.trim();

@@ -11,24 +11,30 @@ import {
   Popper
 } from '@patternfly/react-core';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
+import {
+  t_global_background_color_100 as BackgroundColor,
+} from '@patternfly/react-tokens';
 import React, { useState, useEffect, useRef } from 'react';
 
 interface PathServiceProps {
+  fieldId?: string;
   reset?: boolean;
   rootPath: string;
   path?: string;
   handlePathChange: (value: string) => void;
+  helperText?: React.ReactNode;
 }
 
-const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handlePathChange }) => {
+const PathService: React.FC<PathServiceProps> = ({ fieldId, reset, rootPath, path, handlePathChange, helperText }) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [items, setItems] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const [validPath, setValidPath] = React.useState<ValidatedOptions>();
+  const touchedRef = React.useRef<boolean>();
 
   const validatePath = () => {
-    if (inputValue.trim().length > 0) {
+    if (!touchedRef.current || inputValue.trim().length > 0) {
       setValidPath(ValidatedOptions.success);
       return;
     }
@@ -98,6 +104,7 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
   }, [inputValue]);
 
   const handleChange = (value: string) => {
+    touchedRef.current = true;
     setInputValue(value);
   };
 
@@ -124,7 +131,7 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
   const popperProps: PopperProps = {
     triggerRef: inputRef,
     popper: (
-      <List style={{ border: '1px solid #ccc', maxHeight: '20%', overflow: 'auto' }}>
+      <List style={{ border: '1px solid #ccc', maxHeight: '20%', overflow: 'auto', background: BackgroundColor.var  }}>
         {items.map((item, index) => (
           <ListItem key={index} onClick={() => handleSelect(item)} style={{ padding: '5px 10px', cursor: 'pointer' }}>
             {item}
@@ -141,15 +148,19 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
   return (
     <div>
       <SearchInput
+        id={fieldId}
         ref={inputRef}
         placeholder="Type to find taxonomy path"
         value={inputValue}
         onChange={(_event, value) => handleChange(value)}
         onFocus={(_event) => handleFocus(_event)}
         onClear={() => setInputValue('')}
-        onBlur={() => handlePathChange(inputValue)}
+        onBlur={() => {
+          touchedRef.current = true;
+          handlePathChange(inputValue);
+        }}
       />
-      {validPath === 'error' && (
+      {validPath === 'error' ? (
         <FormHelperText>
           <HelperText>
             <HelperTextItem icon={<ExclamationCircleIcon />} variant={validPath}>
@@ -157,7 +168,13 @@ const PathService: React.FC<PathServiceProps> = ({ reset, rootPath, path, handle
             </HelperTextItem>
           </HelperText>
         </FormHelperText>
-      )}
+      ) : helperText ? (
+        <FormHelperText>
+          <HelperText>
+            <HelperTextItem variant="default">{helperText}</HelperTextItem>
+          </HelperText>
+        </FormHelperText>
+      ) : null}
 
       <Popper {...popperProps} />
     </div>

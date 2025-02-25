@@ -90,6 +90,8 @@ const ChatModelEval: React.FC = () => {
   const [expandedJobsRight, setExpandedJobsRight] = useState<Record<string, boolean>>({});
   const [jobLogsRight, setJobLogsRight] = useState<Record<string, string>>({});
 
+  console.log('selectedModelLeft: ', selectedModelLeft);
+  console.log('selectedModelRight: ', selectedModelRight);
   useEffect(() => {
     const fetchGpus = async () => {
       try {

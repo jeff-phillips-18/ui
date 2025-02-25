@@ -24,6 +24,7 @@ import {
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-circle-icon';
 import { ValidatedOptions } from '@patternfly/react-core/dist/esm/helpers/constants';
 import { UploadFile } from '@/components/Contribute/Knowledge/UploadFile';
+import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 
 const GITHUB_KNOWLEDGE_FILES_URL = '/api/github/knowledge-files';
 const NATIVE_GIT_KNOWLEDGE_FILES_URL = '/api/native/git/knowledge-files';
@@ -56,6 +57,7 @@ const DocumentInformation: React.FC<Props> = ({
   documentName,
   setDocumentName
 }) => {
+  const [showUploadFromGitModal, setShowUploadFromGitModal] = React.useState<boolean>();
   const [useFileUpload, setUseFileUpload] = useState(true);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -180,24 +182,6 @@ const DocumentInformation: React.FC<Props> = ({
     }
   };
 
-  const handleAutomaticUpload = () => {
-    if (knowledgeDocumentRepositoryUrl.length > 0 || knowledgeDocumentCommit.length > 0 || documentName.length > 0) {
-      setModalText('Switching to automatic upload will clear the document information. Are you sure you want to continue?');
-      setIsModalOpen(true);
-    } else {
-      setUseFileUpload(true);
-    }
-  };
-
-  const handleManualUpload = () => {
-    if (uploadedFiles.length > 0) {
-      setModalText('Switching to manual upload will clear the uploaded files. Are you sure you want to continue?');
-      setIsModalOpen(true);
-    } else {
-      setUseFileUpload(false);
-    }
-  };
-
   const handleModalContinue = () => {
     if (useFileUpload) {
       setUploadedFiles([]);
@@ -217,99 +201,34 @@ const DocumentInformation: React.FC<Props> = ({
   return (
     <Flex gap={{ default: 'gapMd' }} direction={{ default: 'column' }}>
       <FlexItem>
-        <Content component="h4">Document Information</Content>
-        <Content component="p">{`Add the relevant document's information.`}</Content>
+        <Content component="h4">Upload documents</Content>
+        <Content component="p">
+          Resources such as textbooks, technical manuals, encyclopedias, journals, or websites are used as the knowledge source for training your
+          model.{' '}
+          <Button
+            isInline
+            variant="link"
+            component="a"
+            icon={<ExternalLinkAltIcon />} href="https://docs.instructlab.ai/taxonomy/upstream/knowledge_contribution_details/#accepted-sources-of-knowledge"
+            iconPosition="end"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Learn about accepted sources
+          </Button>
+        </Content>
       </FlexItem>
       <FlexItem>
         <Form>
-          <FormGroup>
-            <Flex gap={{ default: 'gapSm' }}>
-              <FlexItem>
-                <Button
-                  variant={useFileUpload ? 'primary' : 'secondary'}
-                  className={useFileUpload ? 'button-active' : 'button-secondary'}
-                  onClick={handleAutomaticUpload}
-                >
-                  Automatically Upload Documents
-                </Button>
-              </FlexItem>
-              <FlexItem>
-                <Button
-                  variant={useFileUpload ? 'secondary' : 'primary'}
-                  className={!useFileUpload ? 'button-active' : 'button-secondary'}
-                  onClick={handleManualUpload}
-                >
-                  Manually Enter Document Details
-                </Button>
-              </FlexItem>
-            </Flex>
+          <FormGroup isRequired label="Uploaded files">
+            <UploadFile onFilesChange={handleFilesChange} />
           </FormGroup>
-          {!useFileUpload ? (
-            <>
-              <FormGroup isRequired key={'doc-info-details-id'} label="Repo URL or Server Side File Path">
-                <TextInput
-                  isRequired
-                  type="url"
-                  aria-label="repo"
-                  validated={validRepo}
-                  placeholder="Enter repo URL where document exists"
-                  value={knowledgeDocumentRepositoryUrl}
-                  onChange={(_event, value) => setKnowledgeDocumentRepositoryUrl(value)}
-                  onBlur={() => validateRepo(knowledgeDocumentRepositoryUrl)}
-                />
-              </FormGroup>
-              <FormGroup isRequired key={'doc-info-details-commit_sha'} label="Commit SHA">
-                <TextInput
-                  isRequired
-                  type="text"
-                  aria-label="commit"
-                  placeholder="Enter the commit SHA of the document in that repo"
-                  value={knowledgeDocumentCommit}
-                  validated={validCommit}
-                  onChange={(_event, value) => setKnowledgeDocumentCommit(value)}
-                  onBlur={() => validateCommit(knowledgeDocumentCommit)}
-                />
-                {validCommit === ValidatedOptions.error && (
-                  <FormHelperText>
-                    <HelperText>
-                      <HelperTextItem icon={<ExclamationCircleIcon />} variant={validCommit}>
-                        Valid commit SHA is required.
-                      </HelperTextItem>
-                    </HelperText>
-                  </FormHelperText>
-                )}
-              </FormGroup>
-              <FormGroup isRequired key={'doc-info-details-patterns'} label="Document names">
-                <TextInput
-                  isRequired
-                  type="text"
-                  aria-label="patterns"
-                  placeholder="Enter the document names (comma separated)"
-                  value={documentName}
-                  validated={validDocumentName}
-                  onChange={(_event, value) => setDocumentName(value)}
-                  onBlur={() => validateDocumentName(documentName)}
-                />
-                {validDocumentName === ValidatedOptions.error && (
-                  <FormHelperText>
-                    <HelperText>
-                      <HelperTextItem icon={<ExclamationCircleIcon />} variant={validDocumentName}>
-                        Required field
-                      </HelperTextItem>
-                    </HelperText>
-                  </FormHelperText>
-                )}
-              </FormGroup>
-            </>
-          ) : (
-            <FormGroup isRequired label="Uploaded files">
-              <UploadFile onFilesChange={handleFilesChange} />
-              <Button variant="primary" onClick={handleDocumentUpload} isDisabled={uploadedFiles.length === 0}>
-                Submit Files
-              </Button>
-            </FormGroup>
-          )}
         </Form>
+      </FlexItem>
+      <FlexItem>
+        <Button variant="primary" onClick={handleDocumentUpload} isDisabled={uploadedFiles.length === 0}>
+          Submit Files
+        </Button>
       </FlexItem>
       {alertInfo && (
         <AlertGroup isToast isLiveRegion>

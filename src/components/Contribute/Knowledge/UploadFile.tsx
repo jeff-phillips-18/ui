@@ -4,7 +4,6 @@ import {
   HelperText,
   HelperTextItem,
   MultipleFileUpload,
-  MultipleFileUploadMain,
   Spinner,
   MultipleFileUploadStatus,
   MultipleFileUploadStatusItem,
@@ -18,6 +17,11 @@ import { UploadIcon } from '@patternfly/react-icons';
 import React, { useState, useEffect } from 'react';
 import { FileRejection, DropEvent } from 'react-dropzone';
 import './knowledge.css';
+import {
+  MultipleFileUploadContext
+} from '@patternfly/react-core/src/components/MultipleFileUpload/MultipleFileUpload';
+import MultiFileUploadArea from '@/components/MultiFileUploadArea/MultiFileUploadArea';
+import UploadFromGitModal from '@/components/Contribute/Knowledge/UploadFromGitModal';
 
 interface ReadFile {
   fileName: string;
@@ -42,6 +46,7 @@ const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
 };
 
 export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ onFilesChange }) => {
+  const [showUploadFromGitModal, setShowUploadFromGitModal] = React.useState<boolean>();
   const [currentFiles, setCurrentFiles] = useState<File[]>([]);
   const [readFileData, setReadFileData] = useState<ReadFile[]>([]);
   const [showStatus, setShowStatus] = useState(false);
@@ -247,7 +252,7 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ onFilesCh
       'Some files were rejected. Please ensure you are uploading files with the following extensions: PDF, DOCX, PPTX, XLSX, Images, HTML, AsciiDoc & Markdown.'
     );
   };
-
+  React.useContext(MultipleFileUploadContext)
   const createHelperText = (file: File) => {
     const fileResult = readFileData.find((readFile) => readFile.fileName === file.name);
     if (fileResult?.loadError) {
@@ -271,15 +276,18 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ onFilesCh
         }}
         isHorizontal
       >
-        <MultipleFileUploadMain
+        <MultiFileUploadArea
           titleIcon={<UploadIcon />}
-          titleText="Drag and drop files here or use upload button."
+          titleText="Drag and drop files here or upload"
           infoText={
             <>
               Accepted file types: PDF, DOCX, PPTX, XLSX, Images, HTML, AsciiDoc & Markdown. <br />
               <strong>Non-Markdown files will be automatically converted to Markdown for context selection.</strong>
             </>
           }
+          uploadText="Upload from device"
+          manualUploadText="Upload from git repository"
+          onManualUpload={() => setShowUploadFromGitModal(true)}
         />
         <div className="spinner-container">
           {isUploading && (
@@ -307,6 +315,9 @@ export const UploadFile: React.FunctionComponent<UploadFileProps> = ({ onFilesCh
             ))}
           </MultipleFileUploadStatus>
         )}
+        {showUploadFromGitModal ? (
+          <UploadFromGitModal onClose={() => setShowUploadFromGitModal(false)} />
+        ) : null}
         <Modal
           isOpen={!!modalText}
           title="File Conversion Issue"
